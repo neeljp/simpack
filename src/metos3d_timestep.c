@@ -185,6 +185,26 @@ Metos3DTimeStepPhiStep(Metos3D *metos3d, PetscScalar t, PetscScalar dt, PetscInt
     PetscFunctionBegin;
     // bgc
     Metos3DBGCStep(metos3d, t, dt, yin, yout, nparam, u0);
+    char filePrefixFormat[PETSC_MAX_PATH_LEN];    
+    char filePrefix      [PETSC_MAX_PATH_LEN];    
+
+    if ((metos3d->spinupStep + 1)%metos3d->moduloStep[0] == 0) {
+        PetscInt modstep = metos3d->moduloStepCount;
+        if (modstep > 0) {
+            PetscInt imodstep = metos3d->moduloStep[1];
+            if ((istep+1)%imodstep == 0) {
+                sprintf(filePrefixFormat, "bgc/q_%s%s", metos3d->filePrefix, metos3d->fileFormatPrefix[1]);
+                sprintf(filePrefix, filePrefixFormat, istep);
+                // output
+                Metos3DBGCOutputPrefix(metos3d, filePrefix, ntracer, yout);
+                }
+        } else {
+            sprintf(filePrefixFormat, "bgc/q_%s%s", metos3d->filePrefix, metos3d->fileFormatPrefix[1]);
+            sprintf(filePrefix, filePrefixFormat, istep);
+            // output
+            Metos3DBGCOutputPrefix(metos3d, filePrefix, ntracer, yout);
+        }
+    }
     // transport
     // ywork = Ae*yin
     // ywork = ywork + yout
